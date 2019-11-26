@@ -12,6 +12,8 @@ clear:
 
 # Compile c files
 #
+build:
+	$(CC) ./main.c -o main.out
 compile:
 	 $(CC) ./main.c -o main.out
 
