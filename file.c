@@ -20,21 +20,31 @@ void read_file(File *f){
 };
 
 char* get_line(File *f){
-	char* str;
-
-	return str;
+	char *line=NULL;
+	size_t len,read;
+	if((read = getline(&line, &len, f->stream)) == -1 ){
+		fclose(f->stream);
+		free(f->stream);
+		return NULL;
+	}
+	return line;
 };
 
 void resize_contents(File *f){
     f->contents = malloc(f->rows * sizeof(char*));
 };
 
+char** get_contents(File* f){
+	return f->contents;
+};
+
+
 void set_contents(File *f){
-	FILE *stream = fopen(f->fileName,"r");
+	f->stream = fopen(f->fileName,"r");
 	char *line=NULL;
 	size_t len,read;
 	int i=0;
-	while ((read = getline(&line, &len, stream)) != -1)
+	while ((read = getline(&line, &len, f->stream)) != -1)
 	{
 	    if(strchr(line, '\n'))
 	    	--read;
@@ -47,8 +57,8 @@ void set_contents(File *f){
 		++i;
 	}
 
-	fclose(stream);
-	free(stream);
+	fclose(f->stream);
+	free(f->stream);
 	free(line);
 };
 
@@ -135,13 +145,17 @@ char** csv_to_array(char* str,int size){
 	return contents;
 }
 
-File file(char* fileName){
+void open_file(File* f){
+	f->stream = fopen(f->fileName,"r");
+}
+
+File file(char* fileName,char mode){
 	File f;
 	
 	set_file_name(&f,fileName);
+	if(mode=='r'||mode=='R')
+		open_file(&f);
 
-	//add to new read_file function{
 
-	//}
 	return f;
 };
