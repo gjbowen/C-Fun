@@ -17,7 +17,13 @@ void read_file(File *f){
 	resize_contents( f);
 
 	set_contents( f);
-}
+};
+
+char* get_line(File *f){
+	char* str;
+
+	return str;
+};
 
 void resize_contents(File *f){
     f->contents = malloc(f->rows * sizeof(char*));

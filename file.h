@@ -7,6 +7,7 @@ typedef struct File_t{
 } File; 
 void resize_contents(File *f);
 void read_file(File *f);
+char* get_line(File *f);
 void print_file(File *f);
 int columns_in_csv(char* str);
 char** csv_to_array(char* str,int size);
