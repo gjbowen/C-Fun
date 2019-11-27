@@ -6,8 +6,10 @@ typedef struct File_t{
 	char** contents;
 	FILE *stream;
 } File; 
+void write_line(File* f,char* line);
+void close_file(File* f);
 char** get_contents(File* f);
-void open_file(File* f);
+void open_file(File* f,char* mode);
 void resize_contents(File *f);
 void read_file(File *f);
 char* get_line(File *f);
@@ -18,5 +20,5 @@ void resize_contents(File *f);
 void set_contents(File *f);
 void set_dimensions(File *f);
 void set_file_name(File *f,char* fileName);
-File file(char* fileName,char mode);
+File file(char* fileName,char* mode);
 #endif

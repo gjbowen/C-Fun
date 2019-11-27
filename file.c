@@ -38,7 +38,6 @@ char** get_contents(File* f){
 	return f->contents;
 };
 
-
 void set_contents(File *f){
 	f->stream = fopen(f->fileName,"r");
 	char *line=NULL;
@@ -145,17 +144,27 @@ char** csv_to_array(char* str,int size){
 	return contents;
 }
 
-void open_file(File* f){
-	f->stream = fopen(f->fileName,"r");
+void open_file(File* f,char* mode){
+	f->stream = fopen(f->fileName,mode);
+}
+void close_file(File* f){
+	fclose(f->stream);
 }
 
-File file(char* fileName,char mode){
-	File f;
-	
-	set_file_name(&f,fileName);
-	if(mode=='r'||mode=='R')
-		open_file(&f);
+void write_line(File* f,char* line){
+	fputs (line,f->stream);
+	fputs ("\r\n",f->stream);
+}
 
+File file(char* fileName,char* mode){
+	File f;
+	set_file_name(&f,fileName);
+	if(strcmp(mode,"r")==0||strcmp(mode,"R")==0)
+		open_file(&f,mode);
+	else if(strcmp(mode,"w")==0||strcmp(mode,"W")==0)
+		open_file(&f,mode);
+	else if(strcmp(mode,"a")==0||strcmp(mode,"A")==0)
+		open_file(&f,mode);
 
 	return f;
 };
