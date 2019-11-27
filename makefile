@@ -20,7 +20,7 @@ compile:
 # Run
 #
 run: clear
-	./main.out
+	./main.out program.txt
 
 # Removes all .out files
 #

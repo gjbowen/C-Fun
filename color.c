@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "color.h"
 
 void print(char* line){

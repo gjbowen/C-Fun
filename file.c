@@ -1,10 +1,29 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+
 #include "file.h"
 
-void resize_contents(struct File *f){
+void print_file(File *f){	
+	int i;
+	for(i=0;i<f->rows;++i)
+		printf("%s\n",f->contents[i]);
+};
+
+void read_file(File *f){
+	set_dimensions(f);
+
+	resize_contents( f);
+
+	set_contents( f);
+}
+
+void resize_contents(File *f){
     f->contents = malloc(f->rows * sizeof(char*));
 };
 
-void set_contents(struct File *f){
+void set_contents(File *f){
 	FILE *stream = fopen(f->fileName,"r");
 	char *line=NULL;
 	size_t len,read;
@@ -27,7 +46,7 @@ void set_contents(struct File *f){
 	free(line);
 };
 
-void set_dimensions(struct File *f){
+void set_dimensions(File *f){
 	FILE *stream = fopen(f->fileName,"r");
 	char *line=NULL;
 	int rows=0;
@@ -43,94 +62,80 @@ void set_dimensions(struct File *f){
 	f->rows=rows;
 };
 
-void set_file_name(struct File *f,char* fileName){
+void set_file_name(File *f,char* fileName){
 	strcpy(f->fileName , fileName);
 };
 
-
-
-void print_tokens(Token *h) {
-	Token *current = h;
-	while (current != NULL) {
-		printf("%s\n", current->type);
-		current = current->next;
+int columns_in_csv(char* str){
+	int i,tokens=0;
+	bool inParen = false;
+	for(i=0;i<strlen(str);++i){
+		if(!inParen && str[i]=='\"'){ //START OF STRING.
+			inParen = true;
+			continue;
+		}
+		else if(inParen && str[i]=='\"'){ //END OF STRING!
+			inParen = false;
+			continue;
+		}
+		else if(inParen) //still a part of a string..
+			continue;
+		else if(str[i]==',') //another comma
+			++tokens;
 	}
+	return tokens+1;
 }
 
-Token *new_token(char* toke){
-	Token *t = malloc(sizeof(Token));
-	t->type = malloc(strlen(toke)*sizeof(char));
-	strcpy(t->type,toke);
-	return t;
-}
-
-void push(Token * head, char* val) {
-	Token * current = head;
-	while(current->next != NULL)
-		current = current->next;
-
-	/* now we can add a new variable */
-	current->next = new_token(val);
-	current->next->next = NULL;
-}
-
-Token *set_tokens(struct File *f){
-	FILE *stream = fopen(f->fileName,"r");
-	Token *head = NULL;
-	char *line=NULL;
-	size_t len,read;
-	int i=0;
+char** csv_to_array(char* str,int size){
+	int i,tokens=0;
+	bool inParen = false;
 	char buff[100]="";
+	//initialize size of array
+	char** contents = malloc(size * sizeof(char));
 
-	head = malloc(sizeof(Token));
-	head->type = malloc(strlen("START")*sizeof(char));
-	strcpy(head->type,"START");
-	head->next=NULL;
-
-	while ((read = getline(&line, &len, stream)) != -1)
-	{
-	    for(i=0;i<read;++i){
-	    	if(line[i]=='\r')
-	    		continue;
-	    	else if(line[i]=='\n'&& strcmp(buff, "")!=0){
-				push(head,buff);
-				strcpy(buff,"");
-		    }	
-		    else if(line[i]==' ' && strcmp(buff, "")==0){
-	    		continue;
-	    	}
-	    	else if(line[i]==' '){
-				push(head,buff);
-				strcpy(buff,"");
-			}
-			else
-				strncat(buff, &line[i], 1); 
-	    }
+	for(i=0;i<strlen(str);++i){
+		if(!inParen && str[i]=='\"'){ //START OF STRING.
+			inParen = true;
+			continue;
+		}
+		else if(inParen && str[i]=='\"'){ //END OF STRING!
+			inParen = false;
+			continue;
+		}
+		else if(inParen){ //still a part of a string..
+			strncat(buff, &str[i], 1); 
+			continue;
+		}
+		else if(str[i]==','){ //another comma
+			//reallocate size of string to buffer size
+			contents[tokens] = malloc(strlen(buff) * sizeof(char));
+			
+			//copy the buffer into the array
+			strcpy(contents[tokens],buff);
+			
+			//reinitialize the buffer
+			strcpy(buff,"");
+			++tokens;
+		}
+		else //keep adding to buffer
+			strncat(buff, &str[i], 1); 
 	}
-	if(strcmp(buff, "")!=0 ){
-		push(head,buff);
-	}
+	//reallocate size of string to buffer size
+	contents[tokens] = malloc(strlen(buff) * sizeof(char));
+	
+	//flush whats left into last slot
+	strcpy(contents[tokens],buff);
 
-	fclose(stream);
-	free(stream);
-	free(line);
+	return contents;
+}
 
-	return head;
-};
-
-struct File File(char* fileName){
-	struct File f;
+File file(char* fileName){
+	File f;
 	
 	set_file_name(&f,fileName);
-	Token *t=set_tokens(&f);
-	print_tokens(t);
-	printlnGreen("hello");
 
-//	set_dimensions(&f);
+	//add to new read_file function{
 
-//	resize_contents(&f);
-
-//	set_contents(&f);
-	
+	//}
 	return f;
 };
