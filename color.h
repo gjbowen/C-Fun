@@ -1,5 +1,8 @@
 #ifndef COLOR_H
 #define COLOR_H
+
+#include <stdio.h>
+
 void print(char* line);
 void printRed(char* line);
 void printlnRed(char* line);
